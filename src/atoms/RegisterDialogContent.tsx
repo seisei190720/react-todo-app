@@ -9,8 +9,14 @@ import { todoData } from "../components/types";
 //   due: Date;
 // };
 
+// export const options: AxiosRequestConfig = {
+//   url: "http://localhost:3000/tasks",
+//   method: "GET",
+//   responseType: "json",
+// };
+
 export const options: AxiosRequestConfig = {
-  url: "http://localhost:3000/tasks",
+  url: "https://uhqq3x567d.execute-api.ap-northeast-1.amazonaws.com/task-stage/task",
   method: "GET",
   responseType: "json",
 };
@@ -50,7 +56,7 @@ export const taskCacheAtom = atom<todoData[] | null>({
 export const registerTaskApi = async (todo: todoData) => {
   //TODO エラーハンドリング
   const response: AxiosResponse = await axios.post(
-    "http://localhost:3000/task/add",
+    "https://uhqq3x567d.execute-api.ap-northeast-1.amazonaws.com/task-stage/task",
     todo
   );
   return response.data;
