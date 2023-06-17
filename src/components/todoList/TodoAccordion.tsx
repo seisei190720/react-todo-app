@@ -13,10 +13,8 @@ import {
   taskApiSelector,
   taskCacheAtom,
   deleteTodo,
-  updateToTillToday,
-  updateToTillAfterTomorrow,
-  updateToDone,
-  updateToUndone,
+  updateDone,
+  updateTillToday,
 } from "../../atoms/RegisterDialogContent";
 import { LOW_PRIORITY, TOP_PRIORITY, todoData } from "../types";
 import DoneTable from "./table/DoneTable";
@@ -30,28 +28,28 @@ export default function TodoTable() {
   const updatedToUpperRowRef = useRef<HTMLTableRowElement[]>([]);
   const updatedToLowerRowRef = useRef<HTMLTableRowElement[]>([]);
   const updatedToUndoneRowRef = useRef<HTMLTableRowElement[]>([]);
-  const checkBoxCellRef = useRef<HTMLTableCellElement[]>([]);
   // const dispatch = useDispatch();
+  const TO_TILL_TODAY = 1;
+  const TO_TILL_AFTER_TOMORROW = 0;
+  const TO_DONE = 1;
+  const TO_UNDONE = 0;
 
   useEffect(() => {
     store(savedTask); // 初回fetchで返った値をselectorに保存する
   }, [savedTask, store]);
 
   //doneゾーンに移動させる
-  const handleDone = async (todoId: number) => {
-    const updatedTask: todoData[] = await updateToDone(todoId);
+  const handleDone = async (todoId: string) => {
+    const updatedTask: todoData[] = await updateDone(todoId, TO_DONE);
     await setCachedTask(updatedTask);
 
     const doneTaskLength = cachedTask?.filter((v) => v.done === 1).length;
     highlightMovedRow(doneTaskLength, updatedToUndoneRowRef);
-    
-    //カウントダウン機能のテスト
-
   };
 
   //doneゾーンから戻す(LowPriorityへ)
-  const handleUndone = async (todoId: number) => {
-    const updatedTask: todoData[] = await updateToUndone(todoId);
+  const handleUndone = async (todoId: string) => {
+    const updatedTask: todoData[] = await updateDone(todoId, TO_UNDONE);
     await setCachedTask(updatedTask);
 
     const undoneTaskLength = cachedTask?.filter(
@@ -61,8 +59,11 @@ export default function TodoTable() {
   };
 
   //TopPriorityゾーンに移動させる
-  const handleUpper = async (todoId: number) => {
-    const updatedTask: todoData[] = await updateToTillToday(todoId);
+  const handleUpper = async (todoId: string) => {
+    const updatedTask: todoData[] = await updateTillToday(
+      todoId,
+      TO_TILL_TODAY
+    );
     await setCachedTask(updatedTask);
 
     const upperTaskLength = cachedTask?.filter(
@@ -72,8 +73,11 @@ export default function TodoTable() {
   };
 
   //LowPriorityゾーンに移動させる
-  const handleLower = async (todoId: number) => {
-    const updatedTask: todoData[] = await updateToTillAfterTomorrow(todoId);
+  const handleLower = async (todoId: string) => {
+    const updatedTask: todoData[] = await updateTillToday(
+      todoId,
+      TO_TILL_AFTER_TOMORROW
+    );
     await setCachedTask(updatedTask);
 
     const lowerTaskLength = cachedTask?.filter(
@@ -97,7 +101,7 @@ export default function TodoTable() {
   };
 
   // 選択したタスクを消去する
-  const handleDelete = (todoId: number) => {
+  const handleDelete = (todoId: string) => {
     if (cachedTask === null) return;
     setCachedTask(cachedTask?.filter((v) => v.id !== todoId));
     deleteTodo(todoId);

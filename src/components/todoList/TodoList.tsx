@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import {
@@ -6,7 +6,7 @@ import {
 } from "@mui/material/styles";
 import TodoAccordion from "./TodoAccordion";
 import { useRecoilState } from "recoil";
-import { taskApiSelector, testLambda, users } from "../../atoms/RegisterDialogContent";
+import { taskApiSelector } from "../../atoms/RegisterDialogContent";
 import { theme } from "../../App";
 import { todoData } from "../types";
 
@@ -14,7 +14,6 @@ export default function TodoList() {
   // const classes = useStyles();
 
   const [savedTask] = useRecoilState<todoData[]>(taskApiSelector);
-
   return (
     <>
       <Box padding="2rem" textAlign="center">

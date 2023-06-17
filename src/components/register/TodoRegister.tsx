@@ -5,7 +5,7 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 
-import { registerTaskApi, taskCacheAtom, testLambda, users } from "../../atoms/RegisterDialogContent";
+import { registerTaskApi, taskCacheAtom } from "../../atoms/RegisterDialogContent";
 import { useEffect, useRef, useState } from "react";
 import { todoData } from "../types";
 import React from "react";
@@ -15,11 +15,11 @@ export default function TodoRegister() {
   const ref = useRef<HTMLInputElement>(null);
 
   const [taskContent, setTaskContent] = useState<todoData>({
-    id: 1,
+    id: "",
     task: "",
     due: null,
     done: 0,
-    priority: null,
+    priority: 0,
     refs: "",
     till_today: 0,
     done_date: null,
@@ -31,18 +31,13 @@ export default function TodoRegister() {
   }, [cachedTask]);
 
   const handlerRegister = async () => {
+    // const registeredTask: todoData = await registerTaskApi({...taskContent});
     const registeredTask: todoData = await registerTaskApi(taskContent);
     setCachedTask((prev) =>
       prev ? [...prev, registeredTask] : [registeredTask]
     ); //cacheの中身を置き換える
     setTaskContent((prev) => ({ ...prev, task: "", refs: "", date: "MM/DD/YYYY"})); //TextFieldの初期化
     ref.current?.focus();//TextFieldをfocus
-    
-  // const [users, uetUsers] = useState<users[]>([]);
-    // const testLambdas: users[] = await testLambda();
-    await console.log(testLambda());
-  
-
   };
 
   //   タスクの内容が変更された時

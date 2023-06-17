@@ -19,9 +19,9 @@ import CircularStatic from "./assets/CircularStatic";
 type Props = {
   priorityZone: string;
   filteredTask: todoData[] | undefined;
-  handleMove: (todoId: number) => Promise<void>;
-  handleDone: (todoId: number) => Promise<void>;
-  handleDelete: (todoId: number) => void;
+  handleMove: (todoId: string) => Promise<void>;
+  handleDone: (todoId: string) => Promise<void>;
+  handleDelete: (todoId: string) => void;
   rowRef: React.MutableRefObject<HTMLTableRowElement[]>;
   // checkBoxCellRef: React.MutableRefObject<HTMLTableCellElement[]>;
 };
@@ -62,7 +62,7 @@ const UndoneTable: FC<Props> = ({
                 <TableCell width="5%" padding="checkbox" align="center">
                   <IconButton
                     onClick={() => {
-                      // handleDone(task.id);
+                      handleDone(task.id);
                     }}
                     aria-label="done"
                   >

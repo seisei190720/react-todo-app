@@ -1,5 +1,5 @@
 export type todoData = {
-    id: number;
+    id: string;
     task: string;
     due: Date | null;
     done: number;
@@ -7,7 +7,7 @@ export type todoData = {
     priority: number | null;
     refs: string | null;
     till_today: number;
-    done_date: Date | null;
+    done_date: string | null;
   };
 
   export const TOP_PRIORITY = "top-priority";

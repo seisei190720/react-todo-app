@@ -15,8 +15,8 @@ import React from "react";
 
 type Props = {
   filteredTask: todoData[] | undefined;
-  handleUndone: (todoId: number) => Promise<void>;
-  handleDelete: (todoId: number) => void;
+  handleUndone: (todoId: string) => Promise<void>;
+  handleDelete: (todoId: string) => void;
   rowRef: React.MutableRefObject<HTMLTableRowElement[]>;
 };
 
