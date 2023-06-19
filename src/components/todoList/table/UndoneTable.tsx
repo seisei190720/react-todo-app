@@ -5,16 +5,28 @@ import VerticalAlignTopSharpIcon from "@mui/icons-material/VerticalAlignTopSharp
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import {
   Button,
+  Chip,
+  ChipProps,
   IconButton,
+  Stack,
   Table,
   TableBody,
   TableCell,
   TableRow,
+  ThemeProvider,
+  Typography,
 } from "@mui/material";
 import dayjs from "dayjs";
 import { TOP_PRIORITY, todoData } from "../../types";
 import React from "react";
 import CircularStatic from "./assets/CircularStatic";
+import TagListMenu from "./tag-menu/TagListMenu";
+import {
+  chipTheme,
+  colorPropsWithColor,
+} from "../../../style/styleTheme";
+import { useRecoilState } from "recoil";
+import { taskTabCacheAtom } from "../../../atoms/RegisterDialogContent";
 
 type Props = {
   priorityZone: string;
@@ -36,11 +48,28 @@ const UndoneTable: FC<Props> = ({
   // checkBoxCellRef,
 }) => {
   const [clickedDeleteIds, setClickedDeleteIds] = useState<number[]>([]);
+  const [cachedTaskTab] = useRecoilState(taskTabCacheAtom);
+
+  const defalutColor = {
+    prop: "default",
+    color: "#424242",
+  }
 
   const clickedDelete = (id: number) => {
     setClickedDeleteIds((prev) => [...prev, id]);
-    console.log("clickedDeleteIds");
-    console.log(clickedDeleteIds);
+  };
+
+  const getColor = (tag: string) => {
+    const colorObject = cachedTaskTab.find((item) => item.tabid === tag);
+    const result = colorObject
+    ? colorPropsWithColor.find((v) => v.prop === colorObject.color)
+    : defalutColor
+    return result ? result.color : "#424242";
+  };
+
+  const getColorProp = (tag: string): ChipProps["color"] => {
+    const colorObject = cachedTaskTab.find((item) => item.tabid === tag);
+    return colorObject ? colorObject.color : "primary";
   };
 
   return (
@@ -54,7 +83,6 @@ const UndoneTable: FC<Props> = ({
               <TableRow
                 key={task.id}
                 ref={(el) => {
-                  console.log(el);
                   (rowRef.current![index] as HTMLTableRowElement | null) = el;
                 }}
               >
@@ -71,8 +99,30 @@ const UndoneTable: FC<Props> = ({
                 </TableCell>
                 <TableCell width="70%" sx={{ color: "white" }}>
                   {/* <animated.div style={styles}> */}
-                  {task.task}
-                  {/* </animated.div> */}
+                  <Stack
+                    direction="row"
+                    justifyContent="flex-start"
+                    alignItems="center"
+                    spacing={2}
+                  >
+                    <Typography variant="subtitle2">
+                      {task.task}
+                      {/* </animated.div> */}
+                    </Typography>
+                    {task.tag !== "" && (
+                      <ThemeProvider theme={chipTheme(getColor(task.tag))}>
+                        <Chip
+                          label={task.tag}
+                          color={getColorProp(task.tag)}
+                          variant="outlined"
+                          size="medium"
+                          sx={{
+                            textTransform: "uppercase",
+                          }}
+                        />
+                      </ThemeProvider>
+                    )}
+                  </Stack>
                 </TableCell>
                 {/* 期限(日付) */}
                 <TableCell width="15%" sx={{ color: "white" }} align="center">
@@ -96,13 +146,17 @@ const UndoneTable: FC<Props> = ({
                     </Button>
                   </TableCell>
                 )}
+                {/* タグ付与ボタン */}
+                <TableCell sx={{ color: "white" }}>
+                  <TagListMenu selectedTask={task} />
+                </TableCell>
                 {/* 優先度調整ボタン */}
                 <TableCell width="5%" align="center">
                   <IconButton
                     onClick={() => {
                       handleMove(task.id);
                     }}
-                    aria-label="lower"
+                    aria-label="tag"
                   >
                     {priorityZone === TOP_PRIORITY ? (
                       <LowPriorityIcon />
@@ -123,7 +177,10 @@ const UndoneTable: FC<Props> = ({
                       }}
                       aria-label="delete"
                     >
-                      <CircularStatic todoId={task.id} setClickedDeleteIds={setClickedDeleteIds}/>
+                      <CircularStatic
+                        todoId={task.id}
+                        setClickedDeleteIds={setClickedDeleteIds}
+                      />
                     </IconButton>
                   ) : (
                     <IconButton

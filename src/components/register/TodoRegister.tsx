@@ -1,18 +1,22 @@
 import { Button, Stack, TextField, ThemeProvider } from "@mui/material";
-import { theme } from "../../App";
 import { useRecoilState } from "recoil";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import dayjs from "dayjs";
 
-import { registerTaskApi, taskCacheAtom } from "../../atoms/RegisterDialogContent";
-import { useEffect, useRef, useState } from "react";
+import {
+  registerTaskApi,
+  taskCacheAtom,
+} from "../../atoms/RegisterDialogContent";
+import { useRef, useState } from "react";
 import { todoData } from "../types";
 import React from "react";
+import grey from "@mui/material/colors/grey";
+import { datePickerTheme } from "../../style/styleTheme";
 
 export default function TodoRegister() {
   const [cachedTask, setCachedTask] = useRecoilState(taskCacheAtom);
   const ref = useRef<HTMLInputElement>(null);
+  const [resetKey, setResetKey] = useState(0);
 
   const [taskContent, setTaskContent] = useState<todoData>({
     id: "",
@@ -23,12 +27,8 @@ export default function TodoRegister() {
     refs: "",
     till_today: 0,
     done_date: null,
+    tag: "",
   });
-
-  useEffect(() => {
-    console.log("キャッシュされているタスク一覧");
-    console.log(cachedTask);
-  }, [cachedTask]);
 
   const handlerRegister = async () => {
     // const registeredTask: todoData = await registerTaskApi({...taskContent});
@@ -36,8 +36,13 @@ export default function TodoRegister() {
     setCachedTask((prev) =>
       prev ? [...prev, registeredTask] : [registeredTask]
     ); //cacheの中身を置き換える
-    setTaskContent((prev) => ({ ...prev, task: "", refs: "", date: "MM/DD/YYYY"})); //TextFieldの初期化
-    ref.current?.focus();//TextFieldをfocus
+    setTaskContent((prev) => ({
+      ...prev,
+      task: "",
+      refs: "",
+    })); //TextFieldの初期化
+    setResetKey((prevKey) => prevKey + 1); //keyをリセットすることでDatePickerを初期化できる
+    ref.current?.focus(); //TextFieldをfocus
   };
 
   //   タスクの内容が変更された時
@@ -47,12 +52,12 @@ export default function TodoRegister() {
     setTaskContent((prev) => ({ ...prev, task: e.target.value }));
   };
 
-    //   URLの内容が変更された時
-    const handleUrlChange = (
-      e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-    ) => {
-      setTaskContent((prev) => ({ ...prev, refs: e.target.value }));
-    };
+  //   URLの内容が変更された時
+  const handleUrlChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ) => {
+    setTaskContent((prev) => ({ ...prev, refs: e.target.value }));
+  };
 
   const handleDeadlineChange = (date: any) => {
     setTaskContent((prev) => ({ ...prev, due: date }));
@@ -60,22 +65,13 @@ export default function TodoRegister() {
 
   //ctrl + EnterでRegister
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+    if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
       handlerRegister();
     }
-  }
+  };
 
   return (
-    <ThemeProvider theme={theme}>
-      {/* <AppBar position='static' > */}
-      {/* <Toolbar> */}
-      {/* <Typography variant="h6" color="secondary">
-                        <Box fontFamily="Monospace" fontSize="h6.fontSize" m={1}>
-                            TO DO
-                        </Box>
-                    </Typography> */}
-
-      {/* <Container maxWidth={false}> */}
+    <>
       <Stack direction="row" spacing={1} justifyContent="space-between">
         <TextField
           inputRef={ref}
@@ -86,7 +82,7 @@ export default function TodoRegister() {
           color="secondary"
           placeholder="type your new todo"
           inputProps={{ style: { color: "white" } }}
-          style={{ minWidth: "45%", background: "#323232"}}
+          style={{ minWidth: "45%", background: grey[800] }}
           onKeyDown={handleKeyDown}
           // focused
         />
@@ -98,24 +94,29 @@ export default function TodoRegister() {
           color="secondary"
           placeholder="paste link"
           inputProps={{ style: { color: "white" } }}
-          style={{ minWidth: "20%", background: "#323232"}}
+          style={{ minWidth: "20%", background: grey[800] }}
+          onKeyDown={handleKeyDown}
         />
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DatePicker
-            // defaultValue={dayjs(new Date())}
-            onChange={(date) => handleDeadlineChange(date)}
-            label={dayjs(new Date()).toString()}
-            slotProps={{
-              textField: {
-                // value: taskContent.due,
-                variant: "filled",
-                color: "secondary",
-                // focused: false,
-                label: "DATE",
-                style: {  minWidth: "15%", background: "#323232" },
-              },
-            }}
-          />
+          <ThemeProvider theme={datePickerTheme}>
+            <DatePicker
+              key={resetKey}
+              // defaultValue={dayjs(new Date())}
+              onChange={(date) => handleDeadlineChange(date)}
+              // label={dayjs(new Date()).toString()}
+              slotProps={{
+                textField: {
+                  // value: taskContent.due,
+                  variant: "filled",
+                  color: "secondary",
+                  // focused: false,
+                  label: "DATE",
+                  style: { minWidth: "15%", background: grey[800] },
+                  inputProps: { style: { color: "white" } },
+                },
+              }}
+            />
+          </ThemeProvider>
         </LocalizationProvider>
         <Button
           variant="outlined"
@@ -127,9 +128,6 @@ export default function TodoRegister() {
           register
         </Button>
       </Stack>
-      {/* </Container> */}
-      {/* </Toolbar> */}
-      {/* </AppBar> */}
-    </ThemeProvider>
+    </>
   );
 }

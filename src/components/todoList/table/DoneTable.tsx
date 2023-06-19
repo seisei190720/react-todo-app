@@ -3,15 +3,23 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import {
   Button,
+  Chip,
+  ChipProps,
   IconButton,
+  Stack,
   Table,
   TableBody,
   TableCell,
   TableRow,
+  ThemeProvider,
+  Typography,
 } from "@mui/material";
 import dayjs from "dayjs";
 import { todoData } from "../../types";
 import React from "react";
+import { chipTheme } from "../../../style/styleTheme";
+import { useRecoilState } from "recoil";
+import { taskTabCacheAtom } from "../../../atoms/RegisterDialogContent";
 
 type Props = {
   filteredTask: todoData[] | undefined;
@@ -26,6 +34,11 @@ const DoneTable: FC<Props> = ({
   handleDelete,
   rowRef,
 }) => {
+  const [cachedTaskTab] = useRecoilState(taskTabCacheAtom);
+  const getColor = (tag: string): ChipProps['color']  => {
+    const colorObject = cachedTaskTab.find(item => item.tabid === tag);
+    return colorObject ? colorObject.color : "primary";
+  }
   return (
     <>
       <Table>
@@ -54,15 +67,38 @@ const DoneTable: FC<Props> = ({
                   width="70%"
                   sx={{
                     color: "white",
-                    textDecoration: "line-through",
                   }}
                 >
-                  {task.task}
+                  <Stack
+                    direction="row"
+                    justifyContent="flex-start"
+                    alignItems="center"
+                    spacing={2}
+                  >
+                    <Typography variant="subtitle2">
+                      {task.task}
+                      {/* </animated.div> */}
+                    </Typography>
+                    {task.tag != null && (
+                      <ThemeProvider theme={chipTheme("#ffb74d")}>
+
+                      <Chip
+                        label={task.tag}
+                        color={getColor(task.tag)}
+                        variant="outlined"
+                        size="medium"
+                        sx={{
+                          textTransform: "uppercase",
+                        }}
+                        />
+                        </ThemeProvider>
+                    )}
+                  </Stack>
                 </TableCell>
                 {/* 期限(日付) */}
                 <TableCell
                   width="15%"
-                  sx={{ color: "white", textDecoration: "line-through" }}
+                  sx={{ color: "white" }}
                   align="center"
                 >
                   {task.due

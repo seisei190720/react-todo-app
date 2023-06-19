@@ -1,35 +1,24 @@
 import React from "react";
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import {
-  ThemeProvider,
-} from "@mui/material/styles";
 import TodoAccordion from "./TodoAccordion";
-import { useRecoilState } from "recoil";
-import { taskApiSelector } from "../../atoms/RegisterDialogContent";
-import { theme } from "../../App";
-import { todoData } from "../types";
+import TodoTabBar from "../tabbar/TodoTabBar";
+import { Stack } from "@mui/material";
 
 export default function TodoList() {
-  // const classes = useStyles();
-
-  const [savedTask] = useRecoilState<todoData[]>(taskApiSelector);
   return (
     <>
-      <Box padding="2rem" textAlign="center">
-        {savedTask.length !== 0 ? (
-          <>
-            <ThemeProvider theme={theme}>
+      <Box padding="1rem" textAlign="center">
+          <Stack
+            direction="column"
+            justifyContent="flex-start"
+            alignItems="stretch"
+            spacing={2}
+          >
+            <TodoTabBar />
+            <Stack>
               <TodoAccordion />
-            </ThemeProvider>
-          </>
-        ) : (
-          <>
-            <Typography variant="subtitle1" gutterBottom>
-              まだ登録されたタスクはありません。
-            </Typography>
-          </>
-        )}
+            </Stack>
+          </Stack>
       </Box>
     </>
   );

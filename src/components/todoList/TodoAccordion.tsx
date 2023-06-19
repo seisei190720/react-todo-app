@@ -15,20 +15,28 @@ import {
   deleteTodo,
   updateDone,
   updateTillToday,
+  selectedTabAtom,
 } from "../../atoms/RegisterDialogContent";
 import { LOW_PRIORITY, TOP_PRIORITY, todoData } from "../types";
 import DoneTable from "./table/DoneTable";
 import UndoneTable from "./table/UndoneTable";
 import React from "react";
+import yellow from "@mui/material/colors/yellow";
+import green from "@mui/material/colors/green";
+import { lightBlue } from "@mui/material/colors";
+import { useGroupTask } from "./hooks/useGroupTask";
+import { UseDoneTargetIndex, UseHigherTargetIndex, UseLowerTargetIndex } from "./hooks/useHighLightRow";
 
-export default function TodoTable() {
-  //taskApiSelectorのsetterには、taskCacheAtomに値をセットする関数が定義されている
+export default function TodoAccordion() {
   const [savedTask, store] = useRecoilState<todoData[]>(taskApiSelector);
   const [cachedTask, setCachedTask] = useRecoilState(taskCacheAtom);
   const updatedToUpperRowRef = useRef<HTMLTableRowElement[]>([]);
   const updatedToLowerRowRef = useRef<HTMLTableRowElement[]>([]);
   const updatedToUndoneRowRef = useRef<HTMLTableRowElement[]>([]);
-  // const dispatch = useDispatch();
+  const [selectedTab] = useRecoilState(selectedTabAtom);
+
+  const groupedTask = useGroupTask(cachedTask, selectedTab);
+
   const TO_TILL_TODAY = 1;
   const TO_TILL_AFTER_TOMORROW = 0;
   const TO_DONE = 1;
@@ -42,20 +50,14 @@ export default function TodoTable() {
   const handleDone = async (todoId: string) => {
     const updatedTask: todoData[] = await updateDone(todoId, TO_DONE);
     await setCachedTask(updatedTask);
-
-    const doneTaskLength = cachedTask?.filter((v) => v.done === 1).length;
-    highlightMovedRow(doneTaskLength, updatedToUndoneRowRef);
+    UseDoneTargetIndex(updatedTask, todoId, selectedTab, updatedToUndoneRowRef);
   };
 
   //doneゾーンから戻す(LowPriorityへ)
   const handleUndone = async (todoId: string) => {
     const updatedTask: todoData[] = await updateDone(todoId, TO_UNDONE);
     await setCachedTask(updatedTask);
-
-    const undoneTaskLength = cachedTask?.filter(
-      (v) => v.done === 0 && v.till_today === 0
-    ).length;
-    highlightMovedRow(undoneTaskLength, updatedToLowerRowRef);
+    UseLowerTargetIndex(updatedTask, todoId, selectedTab, updatedToLowerRowRef);
   };
 
   //TopPriorityゾーンに移動させる
@@ -65,11 +67,7 @@ export default function TodoTable() {
       TO_TILL_TODAY
     );
     await setCachedTask(updatedTask);
-
-    const upperTaskLength = cachedTask?.filter(
-      (v) => v.done === 0 && v.till_today === 1
-    ).length;
-    highlightMovedRow(upperTaskLength, updatedToUpperRowRef);
+    UseHigherTargetIndex(updatedTask, todoId, selectedTab, updatedToUpperRowRef);
   };
 
   //LowPriorityゾーンに移動させる
@@ -79,25 +77,7 @@ export default function TodoTable() {
       TO_TILL_AFTER_TOMORROW
     );
     await setCachedTask(updatedTask);
-
-    const lowerTaskLength = cachedTask?.filter(
-      (v) => v.done === 0 && v.till_today === 0
-    ).length;
-    highlightMovedRow(lowerTaskLength, updatedToLowerRowRef);
-  };
-
-  const highlightMovedRow = (
-    filteredTaskLength: number | undefined,
-    rowRef: React.MutableRefObject<HTMLTableRowElement[]>
-  ) => {
-    if (filteredTaskLength === undefined) return;
-    const tableRow = rowRef.current[filteredTaskLength];
-    if (tableRow) {
-      tableRow.style.backgroundColor = "gray";
-      setTimeout(() => {
-        tableRow.style.backgroundColor = "";
-      }, 2000);
-    }
+    UseLowerTargetIndex(updatedTask, todoId, selectedTab, updatedToLowerRowRef);
   };
 
   // 選択したタスクを消去する
@@ -109,7 +89,7 @@ export default function TodoTable() {
 
   return (
     <>
-      <Accordion style={{ outline: "solid", backgroundColor: "#212121" }}>
+      <Accordion style={{ outline: "solid" }}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1a-content"
@@ -119,19 +99,16 @@ export default function TodoTable() {
             variant="h6"
             id="tableTitle"
             component="div"
-            color={"#fff59d"}
-            fontWeight={"lighter"}
+            color={yellow[300]}
           >
-            TOP PRIORITY
+            {`TOP PRIORITY (${groupedTask.tillTodayTask.length})`}
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Stack>
             <UndoneTable
               priorityZone={TOP_PRIORITY}
-              filteredTask={cachedTask?.filter(
-                (value) => value.done === 0 && value.till_today === 1
-              )}
+              filteredTask={groupedTask.tillTodayTask}
               handleMove={handleLower}
               handleDone={handleDone}
               handleDelete={handleDelete}
@@ -142,7 +119,7 @@ export default function TodoTable() {
         </AccordionDetails>
       </Accordion>
 
-      <Accordion style={{ outline: "solid", backgroundColor: "#212121" }}>
+      <Accordion style={{ outline: "solid" }}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1a-content"
@@ -152,18 +129,16 @@ export default function TodoTable() {
             variant="h6"
             id="tableTitle"
             component="div"
-            color={"#69f0ae"}
+            color={green[300]}
           >
-            LOW PRIORITY
+            {`LOW PRIORITY (${groupedTask.tillAfterTomorrowTask.length})`}
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Stack>
             <UndoneTable
               priorityZone={LOW_PRIORITY}
-              filteredTask={cachedTask?.filter(
-                (value) => value.done === 0 && value.till_today === 0
-              )}
+              filteredTask={groupedTask.tillAfterTomorrowTask}
               handleMove={handleUpper}
               handleDone={handleDone}
               handleDelete={handleDelete}
@@ -174,7 +149,7 @@ export default function TodoTable() {
         </AccordionDetails>
       </Accordion>
 
-      <Accordion style={{ outline: "solid", backgroundColor: "#212121" }}>
+      <Accordion style={{ outline: "solid" }}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1a-content"
@@ -184,15 +159,15 @@ export default function TodoTable() {
             variant="h6"
             id="tableTitle"
             component="div"
-            color={"#80d8ff"}
+            color={lightBlue[300]}
           >
-            DONE
+            {`DONE (${groupedTask.doneTask.length})`}
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Stack>
             <DoneTable
-              filteredTask={cachedTask?.filter((value) => value.done === 1)}
+              filteredTask={groupedTask.doneTask}
               handleUndone={handleUndone}
               handleDelete={handleDelete}
               rowRef={updatedToUndoneRowRef}
