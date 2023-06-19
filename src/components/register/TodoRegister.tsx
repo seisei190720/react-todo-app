@@ -5,6 +5,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 import {
   registerTaskApi,
+  selectedTabAtom,
   taskCacheAtom,
 } from "../../atoms/RegisterDialogContent";
 import { useRef, useState } from "react";
@@ -17,6 +18,7 @@ export default function TodoRegister() {
   const [cachedTask, setCachedTask] = useRecoilState(taskCacheAtom);
   const ref = useRef<HTMLInputElement>(null);
   const [resetKey, setResetKey] = useState(0);
+  const [selectedTab] = useRecoilState(selectedTabAtom);
 
   const [taskContent, setTaskContent] = useState<todoData>({
     id: "",
@@ -31,8 +33,11 @@ export default function TodoRegister() {
   });
 
   const handlerRegister = async () => {
-    // const registeredTask: todoData = await registerTaskApi({...taskContent});
-    const registeredTask: todoData = await registerTaskApi(taskContent);
+    const taskContentWithTag: todoData = {
+      ...taskContent,
+      tag: selectedTab === "all" ? "" : selectedTab,
+    };
+    const registeredTask: todoData = await registerTaskApi(taskContentWithTag);
     setCachedTask((prev) =>
       prev ? [...prev, registeredTask] : [registeredTask]
     ); //cacheの中身を置き換える
@@ -40,6 +45,7 @@ export default function TodoRegister() {
       ...prev,
       task: "",
       refs: "",
+      tag: "",
     })); //TextFieldの初期化
     setResetKey((prevKey) => prevKey + 1); //keyをリセットすることでDatePickerを初期化できる
     ref.current?.focus(); //TextFieldをfocus
