@@ -5,14 +5,14 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 import {
   registerTaskApi,
-  selectedTabAtom,
   taskCacheAtom,
-} from "../../atoms/RegisterDialogContent";
+} from "../../atoms/useTaskApi";
 import { useRef, useState } from "react";
 import { todoData } from "../types";
 import React from "react";
 import grey from "@mui/material/colors/grey";
 import { datePickerTheme } from "../../style/styleTheme";
+import { selectedTabAtom } from "../../atoms/useTabApi";
 
 export default function TodoRegister() {
   const [cachedTask, setCachedTask] = useRecoilState(taskCacheAtom);

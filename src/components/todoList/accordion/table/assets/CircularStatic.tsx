@@ -5,7 +5,7 @@ import CircularProgress, {
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useRecoilState } from 'recoil';
-import { deleteTodo, taskCacheAtom } from '../../../../atoms/RegisterDialogContent';
+import { deleteTodo, taskCacheAtom } from '../../../../../atoms/useTaskApi';
 
 function CircularProgressWithLabel(
   props: CircularProgressProps & { value: number},

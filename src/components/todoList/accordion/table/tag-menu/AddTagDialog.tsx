@@ -8,10 +8,10 @@ import { FC, useState } from "react";
 import {
   registerTaskTabApi,
   taskTabCacheAtom,
-} from "../../../../atoms/RegisterDialogContent";
+} from "../../../../../atoms/useTabApi";
 import { useRecoilState } from "recoil";
-import { colorProps } from "../../../../style/styleTheme";
-import { chip } from "../../../types";
+import { colorProps } from "../../../../../style/styleTheme";
+import { chip } from "../../../../types";
 
 type Props = {
   open: boolean;

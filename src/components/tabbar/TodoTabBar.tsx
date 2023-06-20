@@ -1,13 +1,9 @@
 import { Tab, Tabs } from "@mui/material";
 import { useRecoilState } from "recoil";
-import {
-  selectedTabAtom,
-  taskTabApiSelector,
-  taskTabCacheAtom,
-} from "../../atoms/RegisterDialogContent";
 import { useEffect } from "react";
 import { chip } from "../types";
 import { colorPropsWithColor } from "../../style/styleTheme";
+import { selectedTabAtom, taskTabApiSelector, taskTabCacheAtom } from "../../atoms/useTabApi";
 
 export default function TodoTabBar() {
   const [savedTaskTab, store] = useRecoilState<chip[]>(taskTabApiSelector);

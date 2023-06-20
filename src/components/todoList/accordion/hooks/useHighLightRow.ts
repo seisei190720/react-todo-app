@@ -1,5 +1,5 @@
 import { grey } from "@mui/material/colors";
-import { todoData } from "../../types";
+import { todoData } from "../../../types";
 
 export const UseLowerTargetIndex = (
   updatedTask: todoData[],

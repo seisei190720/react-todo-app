@@ -1,6 +1,6 @@
 import React from "react";
 import Box from "@mui/material/Box";
-import TodoAccordion from "./TodoAccordion";
+import TodoAccordion from "./accordion/TodoAccordion";
 import TodoTabBar from "../tabbar/TodoTabBar";
 import { Stack } from "@mui/material";
 

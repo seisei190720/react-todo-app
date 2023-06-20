@@ -12,17 +12,15 @@ import { FC } from "react";
 import LabelOutlinedIcon from "@mui/icons-material/LabelOutlined";
 import { Check } from "@mui/icons-material";
 import {
-  deleteTaskTabApi,
-  taskCacheAtom,
-  taskTabCacheAtom,
-  updateTag,
-} from "../../../../atoms/RegisterDialogContent";
+  taskCacheAtom, updateTag,
+} from "../../../../../atoms/useTaskApi";
 import { useRecoilState } from "recoil";
 import AddIcon from "@mui/icons-material/Add";
 import AddTagDialog from "./AddTagDialog";
-import { tabListTheme } from "../../../../style/styleTheme";
-import { todoData } from "../../../types";
+import { tabListTheme } from "../../../../../style/styleTheme";
+import { todoData } from "../../../../types";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
+import { deleteTaskTabApi, taskTabCacheAtom } from "../../../../../atoms/useTabApi";
 
 type Props = {
   selectedTask: todoData;

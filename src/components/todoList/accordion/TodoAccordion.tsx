@@ -15,9 +15,8 @@ import {
   deleteTodo,
   updateDone,
   updateTillToday,
-  selectedTabAtom,
-} from "../../atoms/RegisterDialogContent";
-import { LOW_PRIORITY, TOP_PRIORITY, todoData } from "../types";
+} from "../../../atoms/useTaskApi";
+import { LOW_PRIORITY, TOP_PRIORITY, todoData } from "../../types";
 import DoneTable from "./table/DoneTable";
 import UndoneTable from "./table/UndoneTable";
 import React from "react";
@@ -26,6 +25,7 @@ import green from "@mui/material/colors/green";
 import { lightBlue } from "@mui/material/colors";
 import { useGroupTask } from "./hooks/useGroupTask";
 import { UseDoneTargetIndex, UseHigherTargetIndex, UseLowerTargetIndex } from "./hooks/useHighLightRow";
+import { selectedTabAtom } from "../../../atoms/useTabApi";
 
 export default function TodoAccordion() {
   const [savedTask, store] = useRecoilState<todoData[]>(taskApiSelector);

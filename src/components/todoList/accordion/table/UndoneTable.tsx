@@ -17,16 +17,16 @@ import {
   Typography,
 } from "@mui/material";
 import dayjs from "dayjs";
-import { TOP_PRIORITY, todoData } from "../../types";
+import { TOP_PRIORITY, todoData } from "../../../types";
 import React from "react";
 import CircularStatic from "./assets/CircularStatic";
 import TagListMenu from "./tag-menu/TagListMenu";
 import {
   chipTheme,
   colorPropsWithColor,
-} from "../../../style/styleTheme";
+} from "../../../../style/styleTheme";
 import { useRecoilState } from "recoil";
-import { taskTabCacheAtom } from "../../../atoms/RegisterDialogContent";
+import { taskTabCacheAtom } from "../../../../atoms/useTabApi";
 
 type Props = {
   priorityZone: string;

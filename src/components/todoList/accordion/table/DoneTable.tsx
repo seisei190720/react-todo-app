@@ -15,11 +15,11 @@ import {
   Typography,
 } from "@mui/material";
 import dayjs from "dayjs";
-import { todoData } from "../../types";
+import { todoData } from "../../../types";
 import React from "react";
-import { chipTheme } from "../../../style/styleTheme";
+import { chipTheme } from "../../../../style/styleTheme";
 import { useRecoilState } from "recoil";
-import { taskTabCacheAtom } from "../../../atoms/RegisterDialogContent";
+import { taskTabCacheAtom } from "../../../../atoms/useTabApi";
 
 type Props = {
   filteredTask: todoData[] | undefined;
