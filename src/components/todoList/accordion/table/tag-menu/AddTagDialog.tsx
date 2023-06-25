@@ -12,6 +12,7 @@ import {
 import { useRecoilState } from "recoil";
 import { colorProps } from "../../../../../style/styleTheme";
 import { chip } from "../../../../types";
+import { userInfoCacheAtom } from "../../../../../atoms/useUserInfo";
 
 type Props = {
   open: boolean;
@@ -19,6 +20,7 @@ type Props = {
 };
 
 const AddTagDialog: FC<Props> = ({ open, handleClose }) => {
+  const [cachedUserInfo] = useRecoilState(userInfoCacheAtom);
   const [cachedTaskTab, setCachedTaskTab] = useRecoilState(taskTabCacheAtom);
   const [tagContent, setTagContent] = useState<string>("");
   //   タグの内容が変更された時
@@ -29,10 +31,12 @@ const AddTagDialog: FC<Props> = ({ open, handleClose }) => {
   };
 
   const handlePostTag = async () => {
+    if(!cachedUserInfo) return;
     const randomNumber = Math.floor(Math.random() * 6);
     const addedTag: chip = await registerTaskTabApi(
       tagContent,
-      colorProps[randomNumber]
+      colorProps[randomNumber],
+      cachedUserInfo.sub,
     );
     setCachedTaskTab([...cachedTaskTab, addedTag]);
     setTagContent("");

@@ -11,22 +11,25 @@ import React from "react";
 import { FC } from "react";
 import LabelOutlinedIcon from "@mui/icons-material/LabelOutlined";
 import { Check } from "@mui/icons-material";
-import {
-  taskCacheAtom, updateTag,
-} from "../../../../../atoms/useTaskApi";
+import { taskCacheAtom, updateTag } from "../../../../../atoms/useTaskApi";
 import { useRecoilState } from "recoil";
 import AddIcon from "@mui/icons-material/Add";
 import AddTagDialog from "./AddTagDialog";
 import { tabListTheme } from "../../../../../style/styleTheme";
 import { todoData } from "../../../../types";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
-import { deleteTaskTabApi, taskTabCacheAtom } from "../../../../../atoms/useTabApi";
+import {
+  deleteTaskTabApi,
+  taskTabCacheAtom,
+} from "../../../../../atoms/useTabApi";
+import { userInfoCacheAtom } from "../../../../../atoms/useUserInfo";
 
 type Props = {
   selectedTask: todoData;
 };
 
 const TagListMenu: FC<Props> = ({ selectedTask }) => {
+  const [cachedUserInfo] = useRecoilState(userInfoCacheAtom);
   const [cachedTaskTab, setCachedTaskTab] = useRecoilState(taskTabCacheAtom);
   const [cachedTask, setCachedTask] = useRecoilState(taskCacheAtom);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -43,7 +46,12 @@ const TagListMenu: FC<Props> = ({ selectedTask }) => {
   };
 
   const handleSelectTag = async (tag: string) => {
-    const updatedTask = await updateTag(selectedTask.id, tag);
+    if (!cachedUserInfo) return;
+    const updatedTask = await updateTag(
+      selectedTask.id,
+      tag,
+      cachedUserInfo.sub
+    );
     //TODO 各タスクに紐づくタグ情報を更新する
     handleClose();
     await setCachedTask(updatedTask);
@@ -58,7 +66,7 @@ const TagListMenu: FC<Props> = ({ selectedTask }) => {
     setOpenAddNewTag(false);
   };
 
-  const handleIconButtonClick = async(
+  const handleIconButtonClick = async (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
     tabId: string
   ) => {
@@ -92,6 +100,7 @@ const TagListMenu: FC<Props> = ({ selectedTask }) => {
           {cachedTaskTab.map((v) => {
             return selectedTask.tag === v.tabid ? (
               <MenuItem
+                key={v.tabid}
                 onClick={() => {
                   handleSelectTag(v.tabid);
                 }}
@@ -105,6 +114,7 @@ const TagListMenu: FC<Props> = ({ selectedTask }) => {
               </MenuItem>
             ) : (
               <MenuItem
+                key={v.tabid}
                 onClick={() => {
                   handleSelectTag(v.tabid);
                 }}
@@ -121,7 +131,10 @@ const TagListMenu: FC<Props> = ({ selectedTask }) => {
                 </ListItemText>
                 {/* 使用されていないタグは削除ボタンを表示する */}
                 {cachedTask.every((task) => task.tag !== v.tabid) && (
-                  <IconButton onClick={(e) => handleIconButtonClick(e, v.tabid)}>
+                  <IconButton
+                    key={v.tabid}
+                    onClick={(e) => handleIconButtonClick(e, v.tabid)}
+                  >
                     <HighlightOffIcon />
                   </IconButton>
                 )}

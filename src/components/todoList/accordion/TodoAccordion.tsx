@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRecoilState } from "recoil";
 
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -6,6 +6,8 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Alert,
+  Snackbar,
   Stack,
   Typography,
 } from "@mui/material";
@@ -24,18 +26,29 @@ import yellow from "@mui/material/colors/yellow";
 import green from "@mui/material/colors/green";
 import { lightBlue } from "@mui/material/colors";
 import { useGroupTask } from "./hooks/useGroupTask";
-import { UseDoneTargetIndex, UseHigherTargetIndex, UseLowerTargetIndex } from "./hooks/useHighLightRow";
+import {
+  UseDoneTargetIndex,
+  UseHigherTargetIndex,
+  UseLowerTargetIndex,
+} from "./hooks/useHighLightRow";
 import { selectedTabAtom } from "../../../atoms/useTabApi";
+import { snacBarOpenAtom, userInfoCacheAtom } from "../../../atoms/useUserInfo";
 
 export default function TodoAccordion() {
+  const [cachedUserInfo] = useRecoilState(userInfoCacheAtom);
+  const [snacBarOpen, setSnacBarOpen] = useRecoilState(snacBarOpenAtom);
   const [savedTask, store] = useRecoilState<todoData[]>(taskApiSelector);
   const [cachedTask, setCachedTask] = useRecoilState(taskCacheAtom);
   const updatedToUpperRowRef = useRef<HTMLTableRowElement[]>([]);
   const updatedToLowerRowRef = useRef<HTMLTableRowElement[]>([]);
   const updatedToUndoneRowRef = useRef<HTMLTableRowElement[]>([]);
   const [selectedTab] = useRecoilState(selectedTabAtom);
-
   const groupedTask = useGroupTask(cachedTask, selectedTab);
+
+  const [isTopAccordionOpen, setTopAccordionOpen] = useState<boolean>(false);
+  const [isLowAccordionOpen, setLowAccordionOpen] = useState<boolean>(false);
+  const [isDoneAccordionOpen, setDoneAccordionOpen] = useState<boolean>(false);
+  // const [snacBarOpen, setSnacBarOpen] = useState<boolean>(false);
 
   const TO_TILL_TODAY = 1;
   const TO_TILL_AFTER_TOMORROW = 0;
@@ -44,37 +57,67 @@ export default function TodoAccordion() {
 
   useEffect(() => {
     store(savedTask); // 初回fetchで返った値をselectorに保存する
-  }, [savedTask, store]);
+  }, [cachedUserInfo, savedTask, store]);
+
+  //タブ切り替え時に、taskが存在するアコーディオンを自動で開閉する
+  useEffect(() => {
+    setTopAccordionOpen(groupedTask.tillTodayTask.length === 0 ? false : true);
+    setLowAccordionOpen(
+      groupedTask.tillAfterTomorrowTask.length === 0 ? false : true
+    );
+    setDoneAccordionOpen(false);
+  }, [selectedTab]);
 
   //doneゾーンに移動させる
   const handleDone = async (todoId: string) => {
-    const updatedTask: todoData[] = await updateDone(todoId, TO_DONE);
+    if (!cachedUserInfo) return;
+    const updatedTask: todoData[] = await updateDone(
+      todoId,
+      TO_DONE,
+      cachedUserInfo.sub
+    );
     await setCachedTask(updatedTask);
+    setSnacBarOpen(true);
     UseDoneTargetIndex(updatedTask, todoId, selectedTab, updatedToUndoneRowRef);
   };
 
   //doneゾーンから戻す(LowPriorityへ)
   const handleUndone = async (todoId: string) => {
-    const updatedTask: todoData[] = await updateDone(todoId, TO_UNDONE);
+    if (!cachedUserInfo) return;
+    const updatedTask: todoData[] = await updateDone(
+      todoId,
+      TO_UNDONE,
+      cachedUserInfo.sub
+    );
     await setCachedTask(updatedTask);
+    setSnacBarOpen(true);
     UseLowerTargetIndex(updatedTask, todoId, selectedTab, updatedToLowerRowRef);
   };
 
   //TopPriorityゾーンに移動させる
   const handleUpper = async (todoId: string) => {
+    if (!cachedUserInfo) return;
     const updatedTask: todoData[] = await updateTillToday(
       todoId,
-      TO_TILL_TODAY
+      TO_TILL_TODAY,
+      cachedUserInfo.sub
     );
     await setCachedTask(updatedTask);
-    UseHigherTargetIndex(updatedTask, todoId, selectedTab, updatedToUpperRowRef);
+    UseHigherTargetIndex(
+      updatedTask,
+      todoId,
+      selectedTab,
+      updatedToUpperRowRef
+    );
   };
 
   //LowPriorityゾーンに移動させる
   const handleLower = async (todoId: string) => {
+    if (!cachedUserInfo) return;
     const updatedTask: todoData[] = await updateTillToday(
       todoId,
-      TO_TILL_AFTER_TOMORROW
+      TO_TILL_AFTER_TOMORROW,
+      cachedUserInfo.sub
     );
     await setCachedTask(updatedTask);
     UseLowerTargetIndex(updatedTask, todoId, selectedTab, updatedToLowerRowRef);
@@ -85,12 +128,16 @@ export default function TodoAccordion() {
     if (cachedTask === null) return;
     setCachedTask(cachedTask?.filter((v) => v.id !== todoId));
     deleteTodo(todoId);
+    setSnacBarOpen(true);
   };
 
   return (
     <>
-      <Accordion style={{ outline: "solid" }}>
+      <Accordion expanded={isTopAccordionOpen} style={{ outline: "solid" }}>
         <AccordionSummary
+          onClick={() => {
+            setTopAccordionOpen(!isTopAccordionOpen);
+          }}
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1a-content"
           id="panel1a-header"
@@ -119,8 +166,11 @@ export default function TodoAccordion() {
         </AccordionDetails>
       </Accordion>
 
-      <Accordion style={{ outline: "solid" }}>
+      <Accordion expanded={isLowAccordionOpen} style={{ outline: "solid" }}>
         <AccordionSummary
+          onClick={() => {
+            setLowAccordionOpen(!isLowAccordionOpen);
+          }}
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1a-content"
           id="panel1a-header"
@@ -149,8 +199,11 @@ export default function TodoAccordion() {
         </AccordionDetails>
       </Accordion>
 
-      <Accordion style={{ outline: "solid" }}>
+      <Accordion expanded={isDoneAccordionOpen} style={{ outline: "solid" }}>
         <AccordionSummary
+          onClick={() => {
+            setDoneAccordionOpen(!isDoneAccordionOpen);
+          }}
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1a-content"
           id="panel1a-header"
@@ -175,6 +228,15 @@ export default function TodoAccordion() {
           </Stack>
         </AccordionDetails>
       </Accordion>
+      <Snackbar
+        open={snacBarOpen}
+        autoHideDuration={4000}
+        onClose={() => setSnacBarOpen(false)}
+      >
+        <Alert onClose={() => setSnacBarOpen(false)} sx={{ width: "100%", fontWeight: 'bold' }}>
+          {`Successfully updated!`}
+        </Alert>
+      </Snackbar>
     </>
   );
 }

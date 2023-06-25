@@ -3,22 +3,25 @@ import { useRecoilState } from "recoil";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
-import {
-  registerTaskApi,
-  taskCacheAtom,
-} from "../../atoms/useTaskApi";
-import { useRef, useState } from "react";
+import { registerTaskApi, taskCacheAtom } from "../../atoms/useTaskApi";
+import { useEffect, useRef, useState } from "react";
 import { todoData } from "../types";
 import React from "react";
 import grey from "@mui/material/colors/grey";
 import { datePickerTheme } from "../../style/styleTheme";
 import { selectedTabAtom } from "../../atoms/useTabApi";
+import { snacBarOpenAtom, userInfoCacheAtom } from "../../atoms/useUserInfo";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 
 export default function TodoRegister() {
+  const [cachedUserInfo] = useRecoilState(userInfoCacheAtom);
   const [cachedTask, setCachedTask] = useRecoilState(taskCacheAtom);
   const ref = useRef<HTMLInputElement>(null);
   const [resetKey, setResetKey] = useState(0);
   const [selectedTab] = useRecoilState(selectedTabAtom);
+  const [snacBarOpen, setSnacBarOpen] = useRecoilState(snacBarOpenAtom);
 
   const [taskContent, setTaskContent] = useState<todoData>({
     id: "",
@@ -30,7 +33,14 @@ export default function TodoRegister() {
     till_today: 0,
     done_date: null,
     tag: "",
+    usersub: cachedUserInfo?.sub,
   });
+
+  useEffect(() => {
+    if (!cachedUserInfo) return;
+    if (!cachedUserInfo.sub) return;
+    setTaskContent((prev) => ({ ...prev, usersub: cachedUserInfo.sub }));
+  }, [cachedUserInfo]);
 
   const handlerRegister = async () => {
     const taskContentWithTag: todoData = {
@@ -38,6 +48,7 @@ export default function TodoRegister() {
       tag: selectedTab === "all" ? "" : selectedTab,
     };
     const registeredTask: todoData = await registerTaskApi(taskContentWithTag);
+    setSnacBarOpen(true);
     setCachedTask((prev) =>
       prev ? [...prev, registeredTask] : [registeredTask]
     ); //cacheの中身を置き換える
@@ -66,7 +77,10 @@ export default function TodoRegister() {
   };
 
   const handleDeadlineChange = (date: any) => {
-    setTaskContent((prev) => ({ ...prev, due: date }));
+    dayjs.extend(utc);
+    dayjs.extend(timezone);
+    const japanTime = dayjs(date).utcOffset(9).format('YYYY-MM-DD');
+    setTaskContent((prev) => ({ ...prev, due: japanTime }));
   };
 
   //ctrl + EnterでRegister

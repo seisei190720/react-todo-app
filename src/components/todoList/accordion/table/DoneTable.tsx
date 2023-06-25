@@ -35,10 +35,10 @@ const DoneTable: FC<Props> = ({
   rowRef,
 }) => {
   const [cachedTaskTab] = useRecoilState(taskTabCacheAtom);
-  const getColor = (tag: string): ChipProps['color']  => {
-    const colorObject = cachedTaskTab.find(item => item.tabid === tag);
+  const getColor = (tag: string): ChipProps["color"] => {
+    const colorObject = cachedTaskTab.find((item) => item.tabid === tag);
     return colorObject ? colorObject.color : "primary";
-  }
+  };
   return (
     <>
       <Table>
@@ -79,28 +79,23 @@ const DoneTable: FC<Props> = ({
                       {task.task}
                       {/* </animated.div> */}
                     </Typography>
-                    {task.tag != null && (
+                    {task.tag !== "" && (
                       <ThemeProvider theme={chipTheme("#ffb74d")}>
-
-                      <Chip
-                        label={task.tag}
-                        color={getColor(task.tag)}
-                        variant="outlined"
-                        size="medium"
-                        sx={{
-                          textTransform: "uppercase",
-                        }}
+                        <Chip
+                          label={task.tag}
+                          color={getColor(task.tag)}
+                          variant="outlined"
+                          size="medium"
+                          sx={{
+                            textTransform: "uppercase",
+                          }}
                         />
-                        </ThemeProvider>
+                      </ThemeProvider>
                     )}
                   </Stack>
                 </TableCell>
                 {/* 期限(日付) */}
-                <TableCell
-                  width="15%"
-                  sx={{ color: "white" }}
-                  align="center"
-                >
+                <TableCell width="15%" sx={{ color: "white" }} align="center">
                   {task.due
                     ? dayjs(task.due).format("YYYY-MM-DD").toString()
                     : ""}

@@ -3,7 +3,7 @@ import { ChipProps } from "@mui/material";
 export type todoData = {
     id: string;
     task: string;
-    due: Date | null;
+    due: string | null;
     done: number;
     //仮置きのnull
     priority: number | null;
@@ -11,6 +11,8 @@ export type todoData = {
     till_today: number;
     done_date: string | null;
     tag: string;
+    // usersub: UserInfo | undefined;
+    usersub: string | undefined;
   };
 
   export const TOP_PRIORITY = "top-priority";
@@ -19,4 +21,9 @@ export type todoData = {
 export type chip = {
   tabid: string,
   color: ChipProps['color'],
+}
+
+export type UserInfo = {
+  name: string,
+  sub: string,
 }

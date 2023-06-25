@@ -1,5 +1,12 @@
 import { createTheme } from "@mui/material";
-import { cyan, deepPurple, lime, orange, teal } from "@mui/material/colors";
+import {
+  cyan,
+  deepPurple,
+  green,
+  lime,
+  orange,
+  teal,
+} from "@mui/material/colors";
 import grey from "@mui/material/colors/grey";
 import pink from "@mui/material/colors/pink";
 import purple from "@mui/material/colors/purple";
@@ -42,13 +49,14 @@ export const theme = createTheme({
         },
       },
     },
-
-    // MuiChip: {
-    //   styleOverrides: {
-    //     root: {
-    //       backgroundColor: 'rgba(0, 0, 0, 0.5)',        }
-    //   }
-    // }
+    MuiAlert: {
+      styleOverrides: {
+        root: {
+          backgroundColor: green[300],
+          color: grey[900],
+        },
+      },
+    },
   },
 });
 
@@ -163,45 +171,46 @@ export const colorPropsWithColor = [
 // export const colorProps = 'secondary';
 
 export const hexToRgb = (hex: string) => {
-    const bigint = parseInt(hex.slice(1), 16);
-    const r = (bigint >> 16) & 255;
-    const g = (bigint >> 8) & 255;
-    const b = bigint & 255;
-    return `rgba(${r}, ${g}, ${b}, 0.07)`;
-  }
+  const bigint = parseInt(hex.slice(1), 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  return `rgba(${r}, ${g}, ${b}, 0.07)`;
+};
 
-export const chipTheme = (color: string) => createTheme({
-  // 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'
-  palette: {
-    primary: {
-      main: purple[300],
+export const chipTheme = (color: string) =>
+  createTheme({
+    // 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'
+    palette: {
+      primary: {
+        main: purple[300],
+      },
+      secondary: {
+        main: cyan[300],
+      },
+      error: {
+        main: lime[300],
+      },
+      info: {
+        main: deepPurple[300],
+      },
+      success: {
+        main: teal[200],
+      },
+      warning: {
+        main: orange[300],
+      },
     },
-    secondary: {
-      main: cyan[300],
+    typography: {
+      fontFamily: "Consolas, Source Code Pro, Ricty Diminished",
     },
-    error: {
-      main: lime[300],
+    components: {
+      MuiChip: {
+        styleOverrides: {
+          root: {
+            backgroundColor: hexToRgb(color),
+          },
+        },
+      },
     },
-    info: {
-      main: deepPurple[300],
-    },
-    success: {
-      main: teal[200],
-    },
-    warning: {
-      main: orange[300],
-    },
-  },
-  typography: {
-    fontFamily: "Consolas, Source Code Pro, Ricty Diminished",
-  },
-  components: {
-    MuiChip: {
-      styleOverrides: {
-        root: {
-          backgroundColor: hexToRgb(color),
-        }
-      }
-    }
-  },
-});
+  });

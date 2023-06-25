@@ -9,7 +9,9 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <App />
+    <App signOut={function (): void {
+      throw new Error('Function not implemented.');
+    } } user={undefined} />
   </React.StrictMode>
 );
 

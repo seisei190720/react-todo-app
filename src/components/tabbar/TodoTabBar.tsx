@@ -3,20 +3,25 @@ import { useRecoilState } from "recoil";
 import { useEffect } from "react";
 import { chip } from "../types";
 import { colorPropsWithColor } from "../../style/styleTheme";
-import { selectedTabAtom, taskTabApiSelector, taskTabCacheAtom } from "../../atoms/useTabApi";
+import {
+  selectedTabAtom,
+  taskTabApiSelector,
+  taskTabCacheAtom,
+} from "../../atoms/useTabApi";
 
 export default function TodoTabBar() {
   const [savedTaskTab, store] = useRecoilState<chip[]>(taskTabApiSelector);
   const [cachedTaskTab] = useRecoilState(taskTabCacheAtom);
   const [selectedTab, setSelectedTab] = useRecoilState(selectedTabAtom);
+
   useEffect(() => {
     store(savedTaskTab); // 初回fetchで返った値をselectorに保存する
   }, [savedTaskTab, store]);
 
   const getColor = (prop: string) => {
-    const colorObject = colorPropsWithColor.find(item => item.prop === prop);
+    const colorObject = colorPropsWithColor.find((item) => item.prop === prop);
     return colorObject ? colorObject.color : "#f06292";
-  }
+  };
   return (
     <>
       <Tabs
@@ -31,9 +36,12 @@ export default function TodoTabBar() {
         {cachedTaskTab.map((v) => {
           return (
             <Tab
+              key={v.tabid}
               value={v.tabid}
               label={v.tabid}
-              style={{ color: v.color ? getColor(v.color?.toString()): "default" }}
+              style={{
+                color: v.color ? getColor(v.color?.toString()) : "default",
+              }}
             />
           );
         })}

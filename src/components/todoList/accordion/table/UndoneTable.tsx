@@ -21,10 +21,7 @@ import { TOP_PRIORITY, todoData } from "../../../types";
 import React from "react";
 import CircularStatic from "./assets/CircularStatic";
 import TagListMenu from "./tag-menu/TagListMenu";
-import {
-  chipTheme,
-  colorPropsWithColor,
-} from "../../../../style/styleTheme";
+import { chipTheme, colorPropsWithColor } from "../../../../style/styleTheme";
 import { useRecoilState } from "recoil";
 import { taskTabCacheAtom } from "../../../../atoms/useTabApi";
 
@@ -53,7 +50,7 @@ const UndoneTable: FC<Props> = ({
   const defalutColor = {
     prop: "default",
     color: "#424242",
-  }
+  };
 
   const clickedDelete = (id: number) => {
     setClickedDeleteIds((prev) => [...prev, id]);
@@ -62,8 +59,8 @@ const UndoneTable: FC<Props> = ({
   const getColor = (tag: string) => {
     const colorObject = cachedTaskTab.find((item) => item.tabid === tag);
     const result = colorObject
-    ? colorPropsWithColor.find((v) => v.prop === colorObject.color)
-    : defalutColor
+      ? colorPropsWithColor.find((v) => v.prop === colorObject.color)
+      : defalutColor;
     return result ? result.color : "#424242";
   };
 
@@ -186,7 +183,7 @@ const UndoneTable: FC<Props> = ({
                     <IconButton
                       onClick={() => {
                         clickedDelete(task.id);
-                        setTimeout(handleDelete, 3000, task.id);
+                        setTimeout(handleDelete, 3500, task.id);
                         // handleDelete(task.id);
                         // setClickedDeleteIds((prev) => prev.filter((v) => v !== task.id));
                       }}
